@@ -21,20 +21,3 @@ jobs:
           name: Unity-Activation-File
           path: "*.alf"
           retention-days: 3
-
-      - name: Activate via unity-license-activate
-        run: |
-          npm install -g unity-license-activate
-          ALF_FILE=$(ls *.alf | head -1)
-          unity-license-activate \
-            "${{ secrets.UNITY_EMAIL }}" \
-            "${{ secrets.UNITY_PASSWORD }}" \
-            "$ALF_FILE" \
-            --output "Unity_lic.ulf"
-
-      - name: Upload license file
-        uses: actions/upload-artifact@v4
-        with:
-          name: Unity-License-File
-          path: Unity_lic.ulf
-          retention-days: 30
