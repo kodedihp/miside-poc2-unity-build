@@ -1,0 +1,43 @@
+name: Activate Unity License (Automated)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  activate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Request activation file
+        id: activation
+        uses: game-ci/unity-activate@v4
+        env:
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+
+      - name: Upload activation file (.alf)
+        uses: actions/upload-artifact@v4
+        with:
+          name: Unity_v2021.3.35f1.alf
+          path: ${{ steps.activation.outputs.activationFilePath }}
+          retention-days: 3
+
+      - name: Install unity-license-activate
+        run: npm install -g unity-license-activate
+
+      - name: Activate license via puppeteer
+        run: |
+          unity-license-activate \
+            "${{ secrets.UNITY_EMAIL }}" \
+            "${{ secrets.UNITY_PASSWORD }}" \
+            "${{ steps.activation.outputs.activationFilePath }}" \
+            --output "Unity_v2021.3.35f1.ulf"
+        env:
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+
+      - name: Upload license file (.ulf)
+        uses: actions/upload-artifact@v4
+        with:
+          name: Unity_v2021.3.35f1.ulf
+          path: Unity_v2021.3.35f1.ulf
+          retention-days: 30
